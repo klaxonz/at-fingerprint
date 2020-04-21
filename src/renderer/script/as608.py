@@ -2,7 +2,8 @@
 
 import serial
 import time
-# import RPi.GPIO as GPIO
+
+from util import *
 
 # 全局变量
 serial_port = 'COM6' # USB转TTL
@@ -156,13 +157,14 @@ class AS608:
         self.Send_Order(self.g_cmd, size)
 
         if self.Recv_Reply(self.g_reply, 12, 12) is False:
+            Messager.sendFailureMessage('8000')
             return False
 
         pData = [0] * 36864
 
         if self.Recv_Package(pData, 36864) is False:
+            Messager.sendFailureMessage('8000')
             return False
-
 
         file = open(filename, 'wb+')
 
@@ -387,10 +389,10 @@ class AS608:
 
     def Send_Order(self, order, size):
         # 输出详细信息
-        if self.g_verbose == 1:
-            print("=====================================================")
-            print('Send Order: ')
-            self.Print_Data(order[:size])
+        # if self.g_verbose == 1:
+        #     print("=====================================================")
+        #     print('Send Order: ')
+        #     self.Print_Data(order[:size])
         self.g_reply = [0] * 64
         self.ser.write(order[:size])
         return size
@@ -472,7 +474,6 @@ class AS608:
         readBuf = [0] * realPacketSize
 
         availSize      = 0
-        readCount      = 0
         readBufSize    = 0
         offset         = 0
         timeCount      = 0
@@ -500,7 +501,7 @@ class AS608:
 
                     count_ = self.Merge(readBuf, realPacketSize-2, 2)
                     if self.Calibrate(readBuf, realPacketSize) != count_:
-                        print('checksum error!')
+                        Messager.sendFailureMessage('8002')
                         self.g_error_code = 1
                         return False
                 
@@ -521,6 +522,7 @@ class AS608:
         
         if size < realDataSize:
             self.g_error_code = 195
+            Messager.sendFailureMessage('8003')
             return False
         
         self.g_error_code = 0

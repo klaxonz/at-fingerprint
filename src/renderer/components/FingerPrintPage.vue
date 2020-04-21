@@ -173,7 +173,7 @@ export default {
           secureLevel: [],
           secureSelected: '',
           message: '',
-          imgFilename: '../../../' + 'finger_1586362034.bmp'
+          imgFilename: '../../../image/' + 'finger_1586376786.bmp'
         }
     },
     created() {
@@ -300,10 +300,9 @@ export default {
             // 转化json数据
             data = JSON.parse(message)
             // 回调函数处理
-            console.log(data['message'])
             _this.message = data.message
 
-            if (data.code == 100) {
+            if (data.code == 0 && data.msg_code == 1000) {
               let filename = data.data.filename
               if (filename) {
                 _this.imgFilename = '../../../' + filename
@@ -315,7 +314,9 @@ export default {
         pyshell.on('stderr', function (stderr) {
             console.log(stderr)
         }).on('close', function () {
+
         }).end(function() {
+
         });
 
       }
